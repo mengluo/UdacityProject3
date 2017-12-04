@@ -15,11 +15,11 @@ This is a reporting tool that prints out reports (in plain text) based on the da
 ## Schemas for views
 
 - schema for simplifiedLog,    
-View "public.simplifiedlog"
-| Column        | Type | Modifiers  |
-| ------------- |:----:| ----------:|
-| articlename   | text |            |
-| status        | text |            |
+  View "public.simplifiedlog"
+  | Column        | Type | Modifiers  |
+  | ------------- |:----:| ----------:|
+  | articlename   | text |            |
+  | status        | text |            |
 - articlename is the full name of the article extracted from its path
 
 - schema for countLog,
