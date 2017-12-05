@@ -12,7 +12,7 @@ cur = conn.cursor()
 print("\nAnalysis Results:")
 
 # analysis on what the most popular three articles of all time are
-cur.execute("SELECT articles.slug, topArticles.times " +
+cur.execute("SELECT articles.title, topArticles.times " +
             "FROM " +
             "(SELECT " +
             "SUBSTRING(path FROM '\/article\/(.+)') AS articleName, " +
@@ -30,18 +30,6 @@ for row in rows:
     print("  \"{}\" -- {} views".format(row[0], row[1]))
 
 # analysis on who the most popular article authors of all time are
-cur.execute("SELECT EXISTS(SELECT 1 FROM simplifiedLog);")
-viewExisted = cur.fetchone()[0]
-if viewExisted is False:
-    cur.execute("CREATE VIEW simplifiedLog AS " +
-                "SELECT * FROM " +
-                "(SELECT " +
-                "SUBSTRING(PATH FROM '\/article\/(.+)') AS articleName, " +
-                "status " +
-                "FROM log) AS tempLog " +
-                "WHERE tempLog.articleName " +
-                "IN (SELECT slug FROM articles);")
-
 cur.execute("SELECT articleAuthorMap.authorName, COUNT(*) " +
             "FROM " +
             "(SELECT " +
@@ -49,7 +37,7 @@ cur.execute("SELECT articleAuthorMap.authorName, COUNT(*) " +
             "FROM authors JOIN articles " +
             "ON authors.id = articles.author) " +
             "AS articleAuthorMap JOIN simplifiedLog " +
-            "ON articleAuthorMap.articleSlug = simplifiedLog.articleName " +
+            "ON articleAuthorMap.articleSlug = simplifiedLog.slug " +
             "GROUP BY articleAuthorMap.authorName " +
             "ORDER BY COUNT(*) DESC;")
 rows = cur.fetchall()
@@ -58,20 +46,6 @@ for row in rows:
     print("  {} -- {} views".format(row[0], row[1]))
 
 # analysis on which days more than 1% of requests lead to errors
-cur.execute("SELECT EXISTS(SELECT 1 FROM countLog);")
-viewExisted = cur.fetchone()[0]
-if viewExisted is False:
-    cur.execute("CREATE VIEW countLog AS " +
-                "SELECT COUNT(*), tempLog.time, tempLog.status " +
-                "FROM " +
-                "((SELECT " +
-                "to_char(time, 'Mon dd,yyyy') AS time, id " +
-                "FROM log) AS timeLog " +
-                "JOIN " +
-                "(SELECT id, status FROM log) AS statusLog " +
-                "ON timeLog.id = statusLog.id) AS tempLog " +
-                "GROUP BY tempLog.time, tempLog.status")
-
 cur.execute("SELECT finalLog.Atime, " +
             "ROUND(finalLog.errorCounts/finalLog.allCounts * 100, 1)||'%' " +
             "AS errorRate " +
